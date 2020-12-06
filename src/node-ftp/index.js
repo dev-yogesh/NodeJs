@@ -11,7 +11,7 @@ const cors = require('cors')
 const app = express()
 app.disable("x-powered-by");
 const port = process.env.port || 3000
-const dir=process.env.dir || "public"
+const dir = process.env.dir || "public"
 var serveIndex = require('serve-index');
 
 
@@ -20,31 +20,21 @@ app.use(express.json()) // for parsing application/json
 app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
 app.get('/', (req, res) => {
-  res.send('Server is up and running...')
+  res.send(`Server is up and running. <br> <br><a href="${ req.protocol + '://' + req.get('host') + req.originalUrl+"ftp"}">Click here to access ftp</a>`)
 })
 console.log(`starting server at http://localhost:${port}/`)
 
 app.use(express.static(__dirname + "/"))
 
 app.use('/ftp', serveIndex(dir + '/'));
-//app.use('/static', express.static('public'));
 
-app.get('/ftp/*', function(req, res){
-  var resource=req.url.substr(4);
-  const file = `${process.env.dir || "public"}${resource}`;
-  res.download(file); // Set disposition and send it.
+app.get('/ftp/*', function (req, res) {
+  if (req.url && req.url.length > 4) {
+    // decode the url  in case of spaces
+    res.download(`${process.env.dir || "public"}${decodeURIComponent(req.url.substr(4))}`)
+  }
 });
+
 // Listen
 app.listen(port)
 
-
-// function getFileNames(dir) {
-
-//   const testFolder = 'C:\\Softwares';
-//   fs.readdir(testFolder, (err, files) => {
-//     files.forEach(file => {
-//       console.log(file);
-//     });
-//   });
-
-// }
